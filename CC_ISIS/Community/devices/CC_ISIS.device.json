@@ -13,41 +13,6 @@
   },
   "MessageTypes":  [
       {
-        "id": 2,
-        "Label": "CDI Lateral Deviation",
-        "description": "Course deviation indicator lateral needle position"
-      },
-      {
-        "id": 3,
-        "Label": "CDI Needle Valid",
-        "description": "CDI needle has valid navigation data"
-      },
-      {
-        "id": 5,
-        "Label": "Glide Slope Deviation",
-        "description": "Glide slope vertical deviation"
-      },
-      {
-        "id": 6,
-        "Label": "Glide Slope Needle Valid",
-        "description": "Glide slope needle has valid data"
-      },
-      {
-        "id": 12,
-        "Label": "Screen Brightness",
-        "description": "Screen brightness from 0 (off) to 255 (full on)"
-      },
-      {
-        "id": 13,
-        "Label": "Power On/Off",
-        "description": "Power off/on (0=Off, 1=On)"
-      },
-      {
-        "id": 14,
-        "Label": "Power Control",
-        "description": "Manually control from MF: 0, Automatic device control: 1, Always on: 2"
-      },
-      {
         "id": 60,
         "Label": "Airspeed",
         "description": "Indicated airspeed in knots"
@@ -86,6 +51,47 @@
         "id": 102,
         "Label": "Airspeed in Mach",
         "description": "Mach airspeed (A:AIRSPEED MACH,Mach)"
+      },
+      {
+        "id": 999,
+        "Label": "-----UNUSED BELOW HERE. FUTURE EXPANSION-----",
+        "description": "The settings below this one are currently unused."
+      },
+
+      {
+        "id": 2,
+        "Label": "CDI Lateral Deviation",
+        "description": "Course deviation indicator lateral needle position"
+      },
+      {
+        "id": 3,
+        "Label": "CDI Needle Valid",
+        "description": "CDI needle has valid navigation data"
+      },
+      {
+        "id": 5,
+        "Label": "Glide Slope Deviation",
+        "description": "Glide slope vertical deviation"
+      },
+      {
+        "id": 6,
+        "Label": "Glide Slope Needle Valid",
+        "description": "Glide slope needle has valid data"
+      },
+      {
+        "id": 12,
+        "Label": "Screen Brightness",
+        "description": "Screen brightness from 0 (off) to 255 (full on)"
+      },
+      {
+        "id": 13,
+        "Label": "Power On/Off",
+        "description": "Power off/on (0=Off, 1=On)"
+      },
+      {
+        "id": 14,
+        "Label": "Power Control",
+        "description": "Manually control from MF: 0, Automatic device control: 1, Always on: 2"
       }
     ]
 }
