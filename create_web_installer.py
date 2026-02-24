@@ -42,9 +42,20 @@ FLASH_FREQ = "80m"
 # Flash map offsets for ESP32-S3 with Arduino framework.
 # NOTE: ESP32-S3 (and S2, C3) place the bootloader at 0x0.
 #       Classic ESP32 uses 0x1000 — do NOT change this for S3.
-BOOTLOADER_OFFSET = "0x0"
-PARTITION_OFFSET = "0x8000"
-APP_OFFSET = "0x10000"   # matches huge_app.csv first partition start
+BOOTLOADER_OFFSET  = "0x0"
+PARTITION_OFFSET   = "0x8000"
+OTA_DATA_OFFSET    = "0xe000"   # otadata partition (huge_app.csv) — needs boot_app0.bin
+APP_OFFSET         = "0x10000"  # matches huge_app.csv first partition start
+
+# boot_app0.bin marks app0 as the active OTA slot.  Without it the ESP32-S3
+# bootloader sees all-0xFF otadata and refuses to boot.  PlatformIO always
+# includes this file via FLASH_EXTRA_IMAGES; we must do the same.
+_PIO_PACKAGES = os.path.join(os.path.expanduser("~"), ".platformio", "packages")
+BOOT_APP0_BIN = os.path.join(
+    _PIO_PACKAGES,
+    "framework-arduinoespressif32",
+    "tools", "partitions", "boot_app0.bin",
+)
 
 
 # ---------------------------------------------------------------------------
@@ -74,14 +85,15 @@ def find_app_bin() -> str:
 
 
 def merge_firmware(app_bin: str, output_path: str) -> None:
-    """Run esptool merge_bin to combine all flash regions into one file."""
+    """Run esptool merge-bin to combine all flash regions into one file."""
     bootloader = os.path.join(BUILD_DIR, "bootloader.bin")
     partitions = os.path.join(BUILD_DIR, "partitions.bin")
 
     for path, name in [
-        (bootloader, "bootloader"),
-        (partitions, "partition table"),
-        (app_bin, "application"),
+        (bootloader,    "bootloader"),
+        (partitions,    "partition table"),
+        (BOOT_APP0_BIN, "boot_app0.bin (OTA slot marker)"),
+        (app_bin,       "application"),
     ]:
         if not os.path.exists(path):
             sys.exit(f"ERROR: {name} binary not found: {path}")
@@ -89,6 +101,7 @@ def merge_firmware(app_bin: str, output_path: str) -> None:
     print(f"\nMerging firmware for {CHIP.upper()} (flash_mode={FLASH_MODE}, flash_freq={FLASH_FREQ}):")
     print(f"  {BOOTLOADER_OFFSET:8s}  {bootloader}")
     print(f"  {PARTITION_OFFSET:8s}  {partitions}")
+    print(f"  {OTA_DATA_OFFSET:8s}  {BOOT_APP0_BIN}")
     print(f"  {APP_OFFSET:8s}  {app_bin}")
     print(f"  -> {output_path}")
 
@@ -101,6 +114,7 @@ def merge_firmware(app_bin: str, output_path: str) -> None:
         "-o", output_path,
         BOOTLOADER_OFFSET, bootloader,
         PARTITION_OFFSET,  partitions,
+        OTA_DATA_OFFSET,   BOOT_APP0_BIN,
         APP_OFFSET,        app_bin,
     ]
 

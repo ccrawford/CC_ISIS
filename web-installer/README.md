@@ -55,10 +55,16 @@ VERSION=1.2.0 python create_web_installer.py
 ```
 
 The script:
-- Runs `esptool merge_bin` to combine the bootloader, partition table, and
-  application into a single `web-installer/firmware-merged.bin` starting at
-  flash offset `0x0`.
+- Runs `esptool merge-bin` to combine the bootloader, partition table,
+  OTA slot marker (`boot_app0.bin`), and application into a single
+  `web-installer/firmware-merged.bin` starting at flash offset `0x0`.
 - Updates the `"version"` field in `web-installer/manifest.json`.
+
+> **Note:** `boot_app0.bin` is critical. The `huge_app.csv` partition table
+> includes an OTA data partition at `0xe000`. Without a valid slot marker
+> there, the ESP32-S3 bootloader sees all-`0xFF` OTA data and won't boot
+> the application. PlatformIO adds this automatically via `FLASH_EXTRA_IMAGES`;
+> the script finds it in your local PlatformIO packages folder.
 
 ### 3. Commit the updated files
 
@@ -129,4 +135,5 @@ Then open `http://localhost:8080` in Chrome or Edge.
 | Flash frequency | 80 MHz |
 | Bootloader offset | `0x0` *(ESP32-S3 — differs from classic ESP32's `0x1000`)* |
 | Partition table offset | `0x8000` |
+| OTA data offset | `0xe000` *(boot_app0.bin — marks app0 as active boot slot)* |
 | Application offset | `0x10000` *(huge_app.csv)* |
