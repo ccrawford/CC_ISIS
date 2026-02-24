@@ -16,9 +16,9 @@ This is the CC_ISIS project - a MobiFlight custom firmware device that implement
 ### Core Components
 
 #### Main Classes
-- **CC_ISIS**: Primary display controller (`CC_G5/CC_ISIS.h|.cpp`) - handles all display rendering, flight data processing, and graphics updates
-- **MFCustomDevice**: MobiFlight integration layer (`CC_G5/MFCustomDevice.h|.cpp`) - manages device lifecycle and message handling
-- **CC_G5_Base**: Shared base class (`CC_G5/G5Common.h|.cpp`) - provides `setCommon()` for message IDs 0-14, brightness/power management, and settings persistence
+- **CC_ISIS**: Primary display controller (`CC_ISIS/CC_ISIS.h|.cpp`) - handles all display rendering, flight data processing, and graphics updates
+- **MFCustomDevice**: MobiFlight integration layer (`CC_ISIS/MFCustomDevice.h|.cpp`) - manages device lifecycle and message handling
+- **CC_ISIS_Base**: Shared base class (`CC_ISIS/ISISCommon.h|.cpp`) - provides `setCommon()` for message IDs 0-14, brightness/power management, and settings persistence
 
 #### Display System
 - Uses LovyanGFX library for high-performance graphics
@@ -35,7 +35,7 @@ This is the CC_ISIS project - a MobiFlight custom firmware device that implement
 
 ### PlatformIO Configuration
 - **Primary config**: `platformio.ini` - includes core MobiFlight dependencies
-- **Custom config**: `CC_G5/CC_G5_platformio.ini` - device-specific environment
+- **Custom config**: `CC_ISIS/CC_ISIS_platformio.ini` - device-specific environment
 
 ### Build Commands
 ```bash
@@ -67,7 +67,7 @@ pio run -t upload
 ### Message Handling
 The device receives flight data via MobiFlight's message system.
 
-**Common message IDs** (handled by `CC_G5_Base::setCommon()`):
+**Common message IDs** (handled by `CC_ISIS_Base::setCommon()`):
 - 0: AP Heading Bug
 - 1: Approach Type (GPS approach type enum)
 - 2: CDI Lateral Deviation
@@ -104,37 +104,37 @@ The device receives flight data via MobiFlight's message system.
 ## Key File Locations
 
 ### Source Code
-- `CC_G5/CC_ISIS.h|.cpp`: Main ISIS device implementation
-- `CC_G5/G5Common.h|.cpp`: Shared base class, state structs, power management
-- `CC_G5/MFCustomDevice.h|.cpp`: MobiFlight integration
+- `CC_ISIS/CC_ISIS.h|.cpp`: Main ISIS device implementation
+- `CC_ISIS/ISISCommon.h|.cpp`: Shared base class, state structs, power management
+- `CC_ISIS/MFCustomDevice.h|.cpp`: MobiFlight integration
 
 ### Configuration
-- `CC_G5/4inchLCDConfig.h`: Display configuration (Waveshare)
-- `CC_G5/4inchLCDConfig_Guition.h`: Display configuration (Guition)
-- `CC_G5/MFCustomDevicesConfig.h`: Flash config string
-- `CC_G5/MFCustomDeviceTypes.h`: Message ID routing constants
+- `CC_ISIS/4inchLCDConfig.h`: Display configuration (Waveshare)
+- `CC_ISIS/4inchLCDConfig_Guition.h`: Display configuration (Guition)
+- `CC_ISIS/MFCustomDevicesConfig.h`: Flash config string
+- `CC_ISIS/MFCustomDeviceTypes.h`: Message ID routing constants
 
 ### Assets
-- `CC_G5/Sprites/`: Compiled sprite image headers (attitude bg, roll arc, etc.)
-- `CC_G5/Images/isisFont.h`: A320-style ISIS font
-- `CC_G5/Images/PrimaSansMid32.h`: Font used for battery/power display
-- `CC_G5/Community/`: MobiFlight connector configuration files
+- `CC_ISIS/Sprites/`: Compiled sprite image headers (attitude bg, roll arc, etc.)
+- `CC_ISIS/Images/isisFont.h`: A320-style ISIS font
+- `CC_ISIS/Images/PrimaSansMid32.h`: Font used for battery/power display
+- `CC_ISIS/Community/`: MobiFlight connector configuration files
 
 ### Scripts
-- `CC_G5/Scripts/`: Python image conversion utilities
+- `CC_ISIS/Scripts/`: Python image conversion utilities
 
 ## Common Development Tasks
 
 ### Adding New Flight Data
-1. Add message ID case in `CC_ISIS::set()` (or `CC_G5_Base::setCommon()` if truly common)
-2. Add corresponding field to `G5State` in `G5Common.h`
+1. Add message ID case in `CC_ISIS::set()` (or `CC_ISIS_Base::setCommon()` if truly common)
+2. Add corresponding field to `ISISState` in `ISISCommon.h`
 3. Update appropriate draw function in `CC_ISIS.cpp`
-4. Add message ID to `CC_G5/Community/devices/CC_ISIS.device.json`
+4. Add message ID to `CC_ISIS/Community/devices/CC_ISIS.device.json`
 
 ### Display Modifications
 1. Modify draw functions in `CC_ISIS.cpp`
-2. Update sprite definitions in `CC_G5/Sprites/` if new images are needed
-3. Run image conversion scripts in `CC_G5/Scripts/` to regenerate `.h` files
+2. Update sprite definitions in `CC_ISIS/Sprites/` if new images are needed
+3. Run image conversion scripts in `CC_ISIS/Scripts/` to regenerate `.h` files
 
 ### Settings Changes
-When modifying `CC_G5_Settings` struct layout, **always increment `SETTINGS_VERSION`** in `G5Common.h` so stale EEPROM data is detected and reset to defaults.
+When modifying `CC_ISIS_Settings` struct layout, **always increment `SETTINGS_VERSION`** in `ISISCommon.h` so stale EEPROM data is detected and reset to defaults.

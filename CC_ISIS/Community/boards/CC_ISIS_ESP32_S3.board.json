@@ -25,20 +25,20 @@
     "CanInstallFirmware": false,
     "CanResetBoard": false,
     "DelayAfterFirmwareUpdate": 0,
-    "FirmwareBaseName": "ccrawford_cc_g5_esp32s3",
+    "FirmwareBaseName": "ccrawford_cc_isis_esp32s3",
     "FirmwareExtension": "bin",
-    "FriendlyName": "CC_G5",
+    "FriendlyName": "CC_ISIS",
     "LatestFirmwareVersion": "2.5.1",
-    "MobiFlightType": "CC_G5 ESP32",
+    "MobiFlightType": "CC_ISIS ESP32",
     "ResetFirmwareFile": "reset.esp32_s3_devkit_merged.bin",
     "CustomDeviceTypes": [
-      "CC_G5"
+      "CC_ISIS"
     ],
     "Community": {
       "Project": "CC G5",
-      "Website": "https://github.com/ccrawford/CC_G5",
-      "Docs": "https://github.com/ccrawford/CC_G5/blob/main/README.md",
-      "Support": "https://github.com/ccrawford/CC_G5/issues"
+      "Website": "https://github.com/ccrawford/CC_ISIS",
+      "Docs": "https://github.com/ccrawford/CC_ISIS/blob/main/README.md",
+      "Support": "https://github.com/ccrawford/CC_ISIS/issues"
     }
   },
   "ModuleLimits": {

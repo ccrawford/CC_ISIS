@@ -23,7 +23,7 @@ extern MFEEPROM MFeeprom;
     E.g. 6 pins are required, each pin could have two characters (two digits),
     each pins are delimited by "|" and the string is NULL terminated.
     -> (6 * 2) + 5 + 1 = 18 bytes is the maximum.
-    The custom type is "CC_G5", which means 14 characters plus NULL = 15
+    The custom type is "CC_ISIS", which means 15 characters plus NULL = 16
     The configuration is "myConfig", which means 8 characters plus NULL = 9
     The maximum characters to be expected is 18, so MEMLEN_STRING_BUFFER has to be at least 18
 ********************************************************************************** */
@@ -91,7 +91,7 @@ void MFCustomDevice::attach(uint16_t adrPin, uint16_t adrType, uint16_t adrConfi
         is used to store the type
     ********************************************************************************** */
 
-    loadSettings(); // From G5Common
+    loadSettings(); // From ISISCommon
 
     if (!FitInMemory(sizeof(CC_ISIS))) {
         cmdMessenger.sendCmd(kStatus, F("Custom Device does not fit in Memory"));

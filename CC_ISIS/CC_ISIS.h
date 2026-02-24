@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Arduino.h"
-#include "G5Common.h"
+#include "ISISCommon.h"
 
 #define PRESS_COLOR TFT_BLUE
 
-class CC_ISIS : public CC_G5_Base
+class CC_ISIS : public CC_ISIS_Base
 {
 public:
     CC_ISIS();

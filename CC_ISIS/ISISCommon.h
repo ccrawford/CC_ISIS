@@ -23,8 +23,8 @@
 
 #define PIf                  3.14159f
 
-#define CC_G5_SETTINGS_OFFSET 2048 // Well past MF config end (59 + 1496 = 1555)
-#define SETTINGS_VERSION      7    // Bumped: removed HSI/PFD fields from CC_G5_Settings
+#define CC_ISIS_SETTINGS_OFFSET 2048 // Well past MF config end (59 + 1496 = 1555)
+#define SETTINGS_VERSION        7    // Bumped: removed HSI/PFD fields from CC_ISIS_Settings
 #define STATE_VERSION         1
 
 #define TFT_MAIN_TRANSPARENT TFT_PINK // Just pick a color not used in either display
@@ -37,7 +37,7 @@ enum class PowerState { INVALID,
                         HARD_POWER_OFF };
 enum class PowerControl { MANUAL=0, DEVICE_MANAGED=1, ALWAYS_ON=2 };
 
-struct CC_G5_Settings {
+struct CC_ISIS_Settings {
     int          version       = SETTINGS_VERSION;
     uint8_t      baroUnit      = 0; // 0: inHg, 1: kPa, 3: mmHg
     uint8_t      speedUnits    = 0; // 0:knot 1:mph 2:kph
@@ -47,10 +47,10 @@ struct CC_G5_Settings {
     PowerControl powerControl  = PowerControl::ALWAYS_ON;
 };
 
-extern CC_G5_Settings g5Settings;
+extern CC_ISIS_Settings isisSettings;
 
-// Shared flight state - accessible by both HSI and PFD
-struct G5State {
+// Shared ISIS flight state
+struct ISISState {
 
     int           lcdBrightness   = 100; // We will go 0-100 here.
     PowerState    powerState      = PowerState::SHUTTING_DOWN;
@@ -124,7 +124,7 @@ struct G5State {
     
 };
 
-extern G5State g5State;
+extern ISISState isisState;
 
 extern LGFX lcd;
 
@@ -151,16 +151,13 @@ struct SelectionOption {
 
 // BASE DEVICE CLASS
 
-// Shared base class for all G5 device types (HSI, PFD, ISIS).
-// Provides setCommon() for message IDs -2 through 14, and saveState() for the
-// common g5State fields written during a device-type switch.
-// Subclasses override saveState() to call this base version first, then write
-// their own device-specific fields.
-class CC_G5_Base {
+// Shared base class for all ISIS device types.
+// Provides setCommon() for message IDs -2 through 14.
+class CC_ISIS_Base {
 public:
     void setCommon(int16_t messageID, char *setPoint);
-    virtual void saveState();    // saves common g5State fields to NVS; subclasses override to add device-specific fields
-    bool restoreState();         // reads common g5State fields from NVS; returns false if no saved state
+    virtual void saveState();    // saves common isisState fields to NVS
+    bool restoreState();         // reads common isisState fields from NVS; returns false if no saved state
     void sendEncoder(String name, int count, bool increase);
     void sendButton(String name, int pushType = 0);
 };
@@ -180,10 +177,10 @@ public:
 
     void adjustBrightness(int delta)
     {
-        g5State.lcdBrightness += delta;
-        if (g5State.lcdBrightness < 1) g5State.lcdBrightness = 1;
-        if (g5State.lcdBrightness > 100) g5State.lcdBrightness = 100;
-        lcd.setBrightness(brightnessGamma(g5State.lcdBrightness));
+        isisState.lcdBrightness += delta;
+        if (isisState.lcdBrightness < 1) isisState.lcdBrightness = 1;
+        if (isisState.lcdBrightness > 100) isisState.lcdBrightness = 100;
+        lcd.setBrightness(brightnessGamma(isisState.lcdBrightness));
     }
 
     void draw(LGFX_Sprite *targetSprite)
@@ -208,7 +205,7 @@ public:
         targetSprite->setTextColor(TFT_CYAN);
         targetSprite->setTextSize(1.2);
         targetSprite->setTextDatum(lgfx::v1::textdatum::textdatum_t::middle_center);
-        String valueStr = String(g5State.lcdBrightness) + "%";
+        String valueStr = String(isisState.lcdBrightness) + "%";
         targetSprite->drawString(valueStr, centerX + popupWidth / 2, centerY + popupHeight / 2 + 5);
 
         // Bar
@@ -217,7 +214,7 @@ public:
         int barX      = centerX + 20;
         int barY      = centerY + popupHeight - 30;
         targetSprite->drawRoundRect(barX, barY, barWidth, barHeight, 2, TFT_WHITE);
-        int fillWidth = (barWidth - 4) * g5State.lcdBrightness / 100;
+        int fillWidth = (barWidth - 4) * isisState.lcdBrightness / 100;
         targetSprite->fillRoundRect(barX + 2, barY + 2, fillWidth, barHeight - 4, 1, TFT_CYAN);
     }
 };
@@ -225,7 +222,7 @@ public:
 extern BrightnessMenu brightnessMenu;
 
 template <typename ParentDevice>
-class G5MenuBase
+class ISISMenuBase
 {
 public:
     enum class MenuState {
@@ -272,7 +269,7 @@ public:
     int       menuHeight   = 0;
     int       menuWidth    = 0;
 
-    G5MenuBase(ParentDevice *p) : parent(p) {}
+    ISISMenuBase(ParentDevice *p) : parent(p) {}
 
     // Pure virtual - each device defines its menu items
     virtual void createMenuItems() = 0;

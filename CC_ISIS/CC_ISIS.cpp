@@ -110,8 +110,8 @@ void CC_ISIS::begin()
 
     setupSprites();
 
-    lcd.setBrightness(brightnessGamma(g5Settings.lcdBrightness));
-    g5State.lcdBrightness = g5Settings.lcdBrightness;
+    lcd.setBrightness(brightnessGamma(isisSettings.lcdBrightness));
+    isisState.lcdBrightness = isisSettings.lcdBrightness;
 
 #ifdef USE_GUITION_SCREEN
     lcd.setRotation(3); // Puts the USB jack at the bottom on Guition screen.
@@ -142,28 +142,28 @@ void CC_ISIS::set(int16_t messageID, char *setPoint)
     // ISIS-specific messages (IDs >= MSG_ISIS_MIN) go here when implemented.
     switch (messageID) {
     case 80: // Pitch
-        g5State.rawPitchAngle = atof(setPoint);
+        isisState.rawPitchAngle = atof(setPoint);
         break;
     case 72: // Bank
-        g5State.rawBankAngle = atof(setPoint);
+        isisState.rawBankAngle = atof(setPoint);
         break;
     case 60: // Airspeed
-        g5State.rawAirspeed = atof(setPoint);
+        isisState.rawAirspeed = atof(setPoint);
         break;
     case 71: // Ball slip/skid
-        g5State.ballPos = atof(setPoint);
+        isisState.ballPos = atof(setPoint);
         break;
     case 77: // Indicated Altitude
-        g5State.rawAltitude = atof(setPoint);
+        isisState.rawAltitude = atof(setPoint);
         break;
     case 100: // Pressure in mb
-        g5State.mbPressure = atoi(setPoint);
+        isisState.mbPressure = atoi(setPoint);
         break;
     case 101: // are we in std pressure mode
-        g5State.isStdPressure = atoi(setPoint);
+        isisState.isStdPressure = atoi(setPoint);
         break;
     case 102:  // Mach number
-        g5State.machSpeed = atof(setPoint);
+        isisState.machSpeed = atof(setPoint);
         break;
     }
 }
@@ -178,16 +178,16 @@ void CC_ISIS::drawAttitude()
     const uint16_t SKY_COLOR     = TFT_BLUE;
     const uint16_t GND_COLOR     = 37316; // = TFT_BROWN;
 
-    float bankRad = g5State.bankAngle * PIf / 180.0f;
+    float bankRad = isisState.bankAngle * PIf / 180.0f;
     // Pitch scaling factor (pixels per degree)
     const float PITCH_SCALE = 8.0;
 
-    bool inverted = (g5State.bankAngle > 90.0 || g5State.bankAngle < -90.0);
+    bool inverted = (isisState.bankAngle > 90.0 || isisState.bankAngle < -90.0);
 
     // Calculate vertical offset of the horizon due to pitch.
     // When inverted, flip the pitch offset to match what pilot sees from inverted perspective
-    // A negative g5State.pitchAngle (nose up) moves the horizon down (positive pixel offset).
-    float horizonPixelOffset = inverted ? (g5State.pitchAngle * PITCH_SCALE) : (-g5State.pitchAngle * PITCH_SCALE);
+    // A negative isisState.pitchAngle (nose up) moves the horizon down (positive pixel offset).
+    float horizonPixelOffset = inverted ? (isisState.pitchAngle * PITCH_SCALE) : (-isisState.pitchAngle * PITCH_SCALE);
 
     attSprite.fillSprite(SKY_COLOR);
 
@@ -234,8 +234,8 @@ void CC_ISIS::drawAttitude()
     auto drawPitchLine = [&](float pitchDegrees, int lineWidth, bool showNumber, uint16_t color) {
         // Calculate the line's vertical distance from the screen center in an un-rotated frame.
         // A positive value moves the line DOWN the screen.
-        // (pitchDegrees - g5State.pitchAngle) gives the correct relative position.
-        float verticalOffset = (pitchDegrees - g5State.pitchAngle) * PITCH_SCALE;
+        // (pitchDegrees - isisState.pitchAngle) gives the correct relative position.
+        float verticalOffset = (pitchDegrees - isisState.pitchAngle) * PITCH_SCALE;
 
         // Define the line's endpoints relative to the screen center before rotation
         float halfWidth = lineWidth / 2.0;
@@ -267,8 +267,8 @@ void CC_ISIS::drawAttitude()
             ladderValSprite.fillSprite(TFT_BLACK);
             ladderValSprite.drawString(pitchText, 2, ladderValSprite.height() / 2);
             attSprite.setPivot(textX1, textY1);
-            ladderValSprite.pushRotated(inverted ? g5State.bankAngle + 180.0 : g5State.bankAngle, TFT_BLACK);
-            //            ladderValSprite.pushRotated(inverted ? g5State.bankAngle + 180.0 : g5State.bankAngle);
+            ladderValSprite.pushRotated(inverted ? isisState.bankAngle + 180.0 : isisState.bankAngle, TFT_BLACK);
+            //            ladderValSprite.pushRotated(inverted ? isisState.bankAngle + 180.0 : isisState.bankAngle);
         }
     };
 
@@ -304,9 +304,9 @@ void CC_ISIS::drawAttitude()
 
     uint16_t color = TFT_RED;
     for (const auto &line : pitch_lines) {
-        if (line.deg > g5State.pitchAngle + 15.0f) continue;
-        if (line.deg < g5State.pitchAngle - 17.5f) continue;
-        float degFromCenter = fabsf(line.deg - g5State.pitchAngle);
+        if (line.deg > isisState.pitchAngle + 15.0f) continue;
+        if (line.deg < isisState.pitchAngle - 17.5f) continue;
+        float degFromCenter = fabsf(line.deg - isisState.pitchAngle);
 
         float verticalPos = degFromCenter * PITCH_SCALE;
         color             = TFT_WHITE;
@@ -318,16 +318,16 @@ void CC_ISIS::drawAttitude()
     // -- Draw slip/skid and poitner. 
     slipSprite.fillSprite(TFT_MAGENTA);
     slipSprite.pushImage(slipSprite.width()/2 - ROLLPOINTER_IMG_WIDTH/2, 0, ROLLPOINTER_IMG_WIDTH, ROLLPOINTER_IMG_HEIGHT, ROLLPOINTER_IMG_DATA, 8184);
-    slipSprite.pushImage(min((int)(slipSprite.width() - ROLLSLIP_IMG_WIDTH),  max(0, (int)(slipSprite.width()/2 - ROLLSLIP_IMG_WIDTH/2 + (0.7 * g5State.ballPos)*ROLLSLIP_IMG_WIDTH))), ROLLPOINTER_IMG_HEIGHT, ROLLSLIP_IMG_WIDTH, ROLLSLIP_IMG_HEIGHT, ROLLSLIP_IMG_DATA, 8184);
+    slipSprite.pushImage(min((int)(slipSprite.width() - ROLLSLIP_IMG_WIDTH),  max(0, (int)(slipSprite.width()/2 - ROLLSLIP_IMG_WIDTH/2 + (0.7 * isisState.ballPos)*ROLLSLIP_IMG_WIDTH))), ROLLPOINTER_IMG_HEIGHT, ROLLSLIP_IMG_WIDTH, ROLLSLIP_IMG_HEIGHT, ROLLSLIP_IMG_DATA, 8184);
     attSprite.setPivot(attSprite.width()/2 - 12, ATT_HORIZON);
-    slipSprite.pushRotated(g5State.bankAngle, TFT_MAGENTA);
+    slipSprite.pushRotated(isisState.bankAngle, TFT_MAGENTA);
 
 
 
     // --- 3. Draw Horizon Line ---
     // The horizon is just a pitch line at 0 degrees.
     // We draw it extra long to ensure it always crosses the screen.
-    float horiz_unrot_y = (0 - g5State.pitchAngle) * PITCH_SCALE;
+    float horiz_unrot_y = (0 - isisState.pitchAngle) * PITCH_SCALE;
     float lineLength    = attSprite.width() * 1.5;
 
     int16_t hx1 = CENTER_X + (-lineLength / 2.0) * cosBank - horiz_unrot_y * sinBank;
@@ -349,7 +349,7 @@ void CC_ISIS::drawSpeedTape()
 
     const float pixPerKt = 3.8f;
 
-    const float curSpeed = max(g5State.airspeed, 30.0f);
+    const float curSpeed = max(isisState.airspeed, 30.0f);
     const int   yOffset  = (int)(pixPerKt * fmodf(curSpeed, 20.0f)) - 35; // offset factor for non-centered arrow.
     const int   first20  = (int)(curSpeed / 20.0f) * 20;
 
@@ -397,8 +397,8 @@ void CC_ISIS::drawAltTape()
     //
     // Hash marks every 100' on the tape. Labels every 500' Values as three digits with leading 0s
 
-    bool  isNeg  = (g5State.altitude < 0.0f);
-    float curAlt = fabsf(g5State.altitude); // always non-negative; display NEG indicator for sub-sea-level
+    bool  isNeg  = (isisState.altitude < 0.0f);
+    float curAlt = fabsf(isisState.altitude); // always non-negative; display NEG indicator for sub-sea-level
     int   fl     = (int)(curAlt / 100);     // hundreds and above (e.g. 1234ft → fl=12)
 
     char buf[8];
@@ -549,25 +549,29 @@ void CC_ISIS::drawPressure()
 {
     kohlsSprite.fillSprite(TFT_BLACK);
     kohlsSprite.setTextColor(TFT_BLUE);
-    if (g5State.isStdPressure) {
+    if (isisState.isStdPressure) {
         kohlsSprite.setTextSize(1.2);
         kohlsSprite.drawString("STD", 1, 1);
     } else {
         kohlsSprite.setTextSize(1.0);
-        kohlsSprite.drawNumber(g5State.mbPressure, 1, 1);
+        kohlsSprite.drawNumber(isisState.mbPressure, 1, 1);
     }
     kohlsSprite.pushSprite(140, 420);
 }
 
 void CC_ISIS::drawMach() {
-    if(g5State.machSpeed < 0.45) return;
+    if(isisState.machSpeed < 0.45) {
+        kohlsSprite.fillSprite(TFT_BLACK);
+        kohlsSprite.pushSprite(20, 420); 
+        return;
+    }
 
     char buf[5];
 
     kohlsSprite.fillSprite(TFT_BLACK);
     kohlsSprite.setTextColor(TFT_GREEN);
     kohlsSprite.setTextSize(1.0);
-    sprintf(buf, "%.2f", g5State.machSpeed);
+    sprintf(buf, "%.2f", isisState.machSpeed);
     char *s = buf;
     // 2. Remove leading 0 if present (handles 0.49 -> .49)
     if (s[0] == '0' && s[1] == '.') {
@@ -593,10 +597,10 @@ void CC_ISIS::updateInputValues()
     // giving fluid motion instead of stepping directly to the new value.
     // Alpha controls smoothing speed (higher = faster); threshold snaps to
     // the target once the gap is small enough to avoid endless micro-steps.
-    g5State.pitchAngle = smoothInput(g5State.rawPitchAngle, g5State.pitchAngle, 0.3f, 0.05f);
-    g5State.bankAngle  = smoothAngle(g5State.rawBankAngle, g5State.bankAngle, 0.3f, 0.05f);
-    g5State.airspeed   = smoothInput(g5State.rawAirspeed, g5State.airspeed, 0.1f, 0.005f);
-    g5State.altitude   = smoothInput(g5State.rawAltitude, g5State.altitude, 0.1f, 0.05f);
+    isisState.pitchAngle = smoothInput(isisState.rawPitchAngle, isisState.pitchAngle, 0.3f, 0.05f);
+    isisState.bankAngle  = smoothAngle(isisState.rawBankAngle, isisState.bankAngle, 0.3f, 0.05f);
+    isisState.airspeed   = smoothInput(isisState.rawAirspeed, isisState.airspeed, 0.1f, 0.005f);
+    isisState.altitude   = smoothInput(isisState.rawAltitude, isisState.altitude, 0.1f, 0.05f);
 }
 
 void CC_ISIS::update()
@@ -609,19 +613,19 @@ void CC_ISIS::update()
     /*
     char buf[80];
     lcd.fillRect(20, 0, 480, 25);
-    sprintf(buf, "p:%.1f b:%.1f a:%.1f a:%.0f", g5State.pitchAngle, g5State.bankAngle, g5State.airspeed, g5State.altitude);
+    sprintf(buf, "p:%.1f b:%.1f a:%.1f a:%.0f", isisState.pitchAngle, isisState.bankAngle, isisState.airspeed, isisState.altitude);
     lcd.setTextSize(2.0f);
     lcd.drawString(buf, 20, 20);
     if (millis() > lastDelta + 500) {
-        g5State.rawBankAngle += 0.5;
-        if (g5State.rawBankAngle > 30) g5State.rawBankAngle = -30.0f;
+        isisState.rawBankAngle += 0.5;
+        if (isisState.rawBankAngle > 30) isisState.rawBankAngle = -30.0f;
         lastDelta = millis();
 
-        g5State.rawAirspeed += 1.0f;
-        if (g5State.rawAirspeed > 500.0f) g5State.rawAirspeed = 0.0f;
+        isisState.rawAirspeed += 1.0f;
+        if (isisState.rawAirspeed > 500.0f) isisState.rawAirspeed = 0.0f;
 
-        //        g5State.rawAltitude += 10.0f;
-        if (g5State.rawAltitude > 15000.0f) g5State.rawAltitude = 0.0f;
+        //        isisState.rawAltitude += 10.0f;
+        if (isisState.rawAltitude > 15000.0f) isisState.rawAltitude = 0.0f;
     }
         */
 }

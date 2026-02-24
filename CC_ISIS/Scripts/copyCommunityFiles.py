@@ -2,7 +2,7 @@ import shutil
 import os
 
 src_folder = os.path.join(os.path.dirname(__file__), '..', 'Community')
-dst_folder = r'C:\Users\chris\source\repos\FSHardware\CC_G5\CC_G5\Community'
+dst_folder = r'C:\Users\chris\source\repos\FSHardware\CC_ISIS\CC_ISIS\Community'
 
 # Ensure destination folder exists
 os.makedirs(dst_folder, exist_ok=True)

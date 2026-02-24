@@ -1,4 +1,4 @@
-#include "G5Common.h"
+#include "ISISCommon.h"
 
 LGFX lcd = LGFX();
 
@@ -11,12 +11,12 @@ bool powerStateSet(PowerState ps)
 {
     static PowerState lastPs = PowerState::INVALID;
 
-    // Serial.printf("Set state: %d Control state: %d lastPs %d\n", (int)ps, (int)g5Settings.powerControl, lastPs);
+    // Serial.printf("Set state: %d Control state: %d lastPs %d\n", (int)ps, (int)isisSettings.powerControl, lastPs);
 
     // No change? Short circuit.
     if (ps == lastPs) return false;
 
-    if (g5Settings.powerControl == PowerControl::ALWAYS_ON) {
+    if (isisSettings.powerControl == PowerControl::ALWAYS_ON) {
         ps = PowerState::POWER_ON;
     }
 
@@ -24,34 +24,34 @@ bool powerStateSet(PowerState ps)
     // if (lastPs == PowerState::SHUTTING_DOWN) {
     //     Serial.printf("refresh screen\n");
     //     lcd.fillScreen(TFT_BLACK);
-    //     g5State.forceRedraw = true;
+    //     isisState.forceRedraw = true;
     // }
 
-    if (ps == PowerState::POWER_OFF && g5Settings.powerControl != PowerControl::ALWAYS_ON) {
+    if (ps == PowerState::POWER_OFF && isisSettings.powerControl != PowerControl::ALWAYS_ON) {
         // turn off the display.
         lcd.setBrightness(0);
     }
 
     if (ps == PowerState::POWER_ON) {
         // turn the display back on
-        lcd.setBrightness(brightnessGamma(g5State.lcdBrightness));
+        lcd.setBrightness(brightnessGamma(isisState.lcdBrightness));
 
 //        Serial.printf("refresh screen 2\n");
         lcd.fillScreen(TFT_BLACK);
-        g5State.forceRedraw = true;
+        isisState.forceRedraw = true;
     }
 
     // Start the shutdown timer if we're starting a shtudown.
     if (ps == PowerState::SHUTTING_DOWN) {
-        g5State.shutdownStartMs = millis();
+        isisState.shutdownStartMs = millis();
     }
 
     if (ps == PowerState::BATTERY_POWERED) {
-        g5State.batteryStartMs = millis();
+        isisState.batteryStartMs = millis();
     }
 
     // default is just to set the new global state and move on.
-    g5State.powerState = ps;
+    isisState.powerState = ps;
     lastPs             = ps;
     return true;
 }
@@ -131,18 +131,18 @@ float smoothAngle(float input, float current, float alpha, float threshold = 0.5
     return result;
 }
 
-CC_G5_Settings g5Settings;
-G5State        g5State;
+CC_ISIS_Settings isisSettings;
+ISISState      isisState;
 
 LGFX_Sprite batterySprite;
 
 void drawBattery(LGFX_Sprite *targetSprite, int x, int y)
 {
 
-    if (g5State.powerState != PowerState::BATTERY_POWERED ) return;
+    if (isisState.powerState != PowerState::BATTERY_POWERED ) return;
     // const long int batLifeSec = 3 * 60 * 60;  // 3 hours
     const long int batLifeSec = 3 * 60 * 60; // 3 hours
-    long int       secOnBat   = (int)(millis() - g5State.batteryStartMs) / 1000;
+    long int       secOnBat   = (int)(millis() - isisState.batteryStartMs) / 1000;
 
     long int batPct = (int)(100 * (batLifeSec - secOnBat)) / batLifeSec;
 
@@ -197,12 +197,12 @@ void drawBattery(LGFX_Sprite *targetSprite, int x, int y)
 void drawShutdown(LGFX_Sprite *targetSprite)
 {
     // This code only fires when we are in the process of shutting down.
-    if (g5State.powerState != PowerState::SHUTTING_DOWN || g5Settings.powerControl == PowerControl::ALWAYS_ON) return;
+    if (isisState.powerState != PowerState::SHUTTING_DOWN || isisSettings.powerControl == PowerControl::ALWAYS_ON) return;
 
     const int timeOut   = 45;
-    int       secRemain = (int)(timeOut - (millis() - g5State.shutdownStartMs) / 1000);
+    int       secRemain = (int)(timeOut - (millis() - isisState.shutdownStartMs) / 1000);
     if (secRemain < 0) {
-        g5State.powerState = PowerState::POWER_OFF;
+        isisState.powerState = PowerState::POWER_OFF;
         lcd.setBrightness(0);
         return;
     }
@@ -238,13 +238,13 @@ void drawShutdown(LGFX_Sprite *targetSprite)
 
 bool loadSettings()
 {
-    if (MFeeprom.read_block(CC_G5_SETTINGS_OFFSET, g5Settings)) {
-        if (g5Settings.version != SETTINGS_VERSION) {
-            g5Settings = CC_G5_Settings(); // Reset to defaults
+    if (MFeeprom.read_block(CC_ISIS_SETTINGS_OFFSET, isisSettings)) {
+        if (isisSettings.version != SETTINGS_VERSION) {
+            isisSettings = CC_ISIS_Settings(); // Reset to defaults
                                            //            ESP_LOGE("PREF", "Settings Version mismatch\n");
             saveSettings();
         }
-        ESP_LOGV("PREF", "Settings loaded. Version: %d\n", g5Settings.version);
+        ESP_LOGV("PREF", "Settings loaded. Version: %d\n", isisSettings.version);
         return true;
     } else {
         // EEPROM read failed, defaults already set
@@ -257,7 +257,7 @@ bool saveSettings()
 {
     bool retval;
 
-    retval = MFeeprom.write_block(CC_G5_SETTINGS_OFFSET, g5Settings);
+    retval = MFeeprom.write_block(CC_ISIS_SETTINGS_OFFSET, isisSettings);
     if (retval) MFeeprom.commit();
     //  ESP_LOGV("PREF", "Settings saved. retval: %d\n", retval);
     return retval;
@@ -284,37 +284,37 @@ uint8_t brightnessGamma(int percent)
     return (uint8_t)(40 + corrected * 215.0f);
 }
 
-// Saves the common g5State fields to NVS in preparation for a device-type switch.
-// Subclasses override this to call CC_G5_Base::saveState() first, then write
+// Saves the common isisState fields to NVS in preparation for a device-type switch.
+// Subclasses override this to call CC_ISIS_Base::saveState() first, then write
 // their own device-specific fields in a second Preferences session.
-void CC_G5_Base::saveState()
+void CC_ISIS_Base::saveState()
 {
     Preferences prefs;
-    prefs.begin("g5state", false);
+    prefs.begin("isisState", false);
     prefs.putBool("switching", true);
     prefs.putInt("version", STATE_VERSION);
     // Common fields (message IDs 0-10)
-    prefs.putInt("hdgBug", g5State.headingBugAngle);
-    prefs.putInt("appType", g5State.gpsApproachType);
-    prefs.putFloat("cdiOff", g5State.rawCdiOffset);
-    prefs.putInt("cdiVal", g5State.cdiNeedleValid);
-    prefs.putInt("toFrom", g5State.cdiToFrom);
-    prefs.putFloat("gsiNdl", g5State.rawGsiNeedle);
-    prefs.putInt("gsiVal", g5State.gsiNeedleValid);
-    prefs.putInt("gndSpd", g5State.groundSpeed);
-    prefs.putFloat("gndTrk", g5State.groundTrack);  // float (was putInt in HSI — bug fixed)
-    prefs.putFloat("hdgAng", g5State.rawHeadingAngle);
-    prefs.putInt("navSrc", g5State.navSource);
+    prefs.putInt("hdgBug", isisState.headingBugAngle);
+    prefs.putInt("appType", isisState.gpsApproachType);
+    prefs.putFloat("cdiOff", isisState.rawCdiOffset);
+    prefs.putInt("cdiVal", isisState.cdiNeedleValid);
+    prefs.putInt("toFrom", isisState.cdiToFrom);
+    prefs.putFloat("gsiNdl", isisState.rawGsiNeedle);
+    prefs.putInt("gsiVal", isisState.gsiNeedleValid);
+    prefs.putInt("gndSpd", isisState.groundSpeed);
+    prefs.putFloat("gndTrk", isisState.groundTrack);  // float (was putInt in HSI — bug fixed)
+    prefs.putFloat("hdgAng", isisState.rawHeadingAngle);
+    prefs.putInt("navSrc", isisState.navSource);
     prefs.end();
 }
 
-// Reads common g5State fields from NVS after a device-type switch.
+// Reads common isisState fields from NVS after a device-type switch.
 // Subclasses call this first; if it returns true, they open a second session
 // to restore their own device-specific fields.
-bool CC_G5_Base::restoreState()
+bool CC_ISIS_Base::restoreState()
 {
     Preferences prefs;
-    prefs.begin("g5state", false);
+    prefs.begin("isisState", false);
 
     bool wasSwitching = prefs.getBool("switching", false);
     int  version      = prefs.getInt("version", 0);
@@ -328,23 +328,23 @@ bool CC_G5_Base::restoreState()
     }
 
     // Common fields (message IDs 0-10)
-    g5State.headingBugAngle = prefs.getInt("hdgBug", 0);
-    g5State.gpsApproachType = prefs.getInt("appType", 0);
-    g5State.rawCdiOffset    = prefs.getFloat("cdiOff", 0);
-    g5State.cdiNeedleValid  = prefs.getInt("cdiVal", 1);
-    g5State.cdiToFrom       = prefs.getInt("toFrom", 0);
-    g5State.rawGsiNeedle    = prefs.getFloat("gsiNdl", 0);
-    g5State.gsiNeedleValid  = prefs.getInt("gsiVal", 1);
-    g5State.groundSpeed     = prefs.getInt("gndSpd", 0);
-    g5State.groundTrack     = prefs.getFloat("gndTrk", 0);
-    g5State.rawHeadingAngle = prefs.getFloat("hdgAng", 0);
-    g5State.navSource       = prefs.getInt("navSrc", 1);
+    isisState.headingBugAngle = prefs.getInt("hdgBug", 0);
+    isisState.gpsApproachType = prefs.getInt("appType", 0);
+    isisState.rawCdiOffset    = prefs.getFloat("cdiOff", 0);
+    isisState.cdiNeedleValid  = prefs.getInt("cdiVal", 1);
+    isisState.cdiToFrom       = prefs.getInt("toFrom", 0);
+    isisState.rawGsiNeedle    = prefs.getFloat("gsiNdl", 0);
+    isisState.gsiNeedleValid  = prefs.getInt("gsiVal", 1);
+    isisState.groundSpeed     = prefs.getInt("gndSpd", 0);
+    isisState.groundTrack     = prefs.getFloat("gndTrk", 0);
+    isisState.rawHeadingAngle = prefs.getFloat("hdgAng", 0);
+    isisState.navSource       = prefs.getInt("navSrc", 1);
 
     prefs.end();
     return true;
 }
 
-void CC_G5_Base::sendEncoder(String name, int count, bool increase)
+void CC_ISIS_Base::sendEncoder(String name, int count, bool increase)
 {
     for (int i = 0; i < count; i++) {
         cmdMessenger.sendCmdStart(kEncoderChange);
@@ -354,7 +354,7 @@ void CC_G5_Base::sendEncoder(String name, int count, bool increase)
     }
 }
 
-void CC_G5_Base::sendButton(String name, int pushType)
+void CC_ISIS_Base::sendButton(String name, int pushType)
 {
     cmdMessenger.sendCmdStart(kButtonChange);
     cmdMessenger.sendCmdArg(name);
@@ -362,12 +362,12 @@ void CC_G5_Base::sendButton(String name, int pushType)
     cmdMessenger.sendCmdEnd();
 }
 
-// CC_G5_Base::setCommon() handles the message IDs shared by all device types (HSI, PFD, ISIS).
-void CC_G5_Base::setCommon(int16_t messageID, char *setPoint)
+// CC_ISIS_Base::setCommon() handles the message IDs shared by all device types (HSI, PFD, ISIS).
+void CC_ISIS_Base::setCommon(int16_t messageID, char *setPoint)
 {
     // Wake the display when data arrives, but only if MF is managing power.
     // (PowerControl::ALWAYS_ON is handled inside powerStateSet itself.)
-    if (messageID > 0 && g5Settings.powerControl == PowerControl::DEVICE_MANAGED)
+    if (messageID > 0 && isisSettings.powerControl == PowerControl::DEVICE_MANAGED)
         powerStateSet(PowerState::POWER_ON);
 
     switch (messageID) {
@@ -384,41 +384,41 @@ void CC_G5_Base::setCommon(int16_t messageID, char *setPoint)
         break;
 
     case 0: // AP Heading Bug
-        g5State.headingBugAngle = atoi(setPoint);
+        isisState.headingBugAngle = atoi(setPoint);
         break;
     case 1: // Approach Type
-        g5State.gpsApproachType = atoi(setPoint);
+        isisState.gpsApproachType = atoi(setPoint);
         break;
     case 2: // CDI Lateral Deviation
-        g5State.rawCdiOffset = atof(setPoint);
+        isisState.rawCdiOffset = atof(setPoint);
         break;
     case 3: // CDI Needle Valid
-        g5State.cdiNeedleValid = atoi(setPoint);
+        isisState.cdiNeedleValid = atoi(setPoint);
         break;
     case 4: // CDI To/From Flag
-        g5State.cdiToFrom = atoi(setPoint);
+        isisState.cdiToFrom = atoi(setPoint);
         break;
     case 5: // Glide Slope Deviation
-        g5State.rawGsiNeedle = atof(setPoint);
+        isisState.rawGsiNeedle = atof(setPoint);
         break;
     case 6: // Glide Slope Needle Valid
-        g5State.gsiNeedleValid = atoi(setPoint);
+        isisState.gsiNeedleValid = atoi(setPoint);
         break;
     case 7: // Ground Speed
-        g5State.groundSpeed = atoi(setPoint);
+        isisState.groundSpeed = atoi(setPoint);
         break;
     case 8: // Ground Track (Magnetic)
-        g5State.groundTrack = atof(setPoint);
+        isisState.groundTrack = atof(setPoint);
         break;
     case 9: // Heading (Magnetic)
-        g5State.rawHeadingAngle = atof(setPoint);
+        isisState.rawHeadingAngle = atof(setPoint);
         break;
     case 10: // Nav Source (1=GPS, 0=NAV)
-        g5State.navSource = atoi(setPoint);
+        isisState.navSource = atoi(setPoint);
         break;
     case 12: // Brightness (0-255)
-        g5State.lcdBrightness = max(0, min(atoi(setPoint), 255));
-        lcd.setBrightness(g5State.lcdBrightness);
+        isisState.lcdBrightness = max(0, min(atoi(setPoint), 255));
+        lcd.setBrightness(isisState.lcdBrightness);
         break;
     case 13: // Power State: 0=off, 1=on
         switch (atoi(setPoint)) {
@@ -433,13 +433,13 @@ void CC_G5_Base::setCommon(int16_t messageID, char *setPoint)
     case 14: // Power Control mode: 0=Manual, 1=DeviceManaged, 2=AlwaysOn
         switch (atoi(setPoint)) {
         case 0:
-            g5Settings.powerControl = PowerControl::MANUAL;
+            isisSettings.powerControl = PowerControl::MANUAL;
             break;
         case 1:
-            g5Settings.powerControl = PowerControl::DEVICE_MANAGED;
+            isisSettings.powerControl = PowerControl::DEVICE_MANAGED;
             break;
         case 2:
-            g5Settings.powerControl = PowerControl::ALWAYS_ON;
+            isisSettings.powerControl = PowerControl::ALWAYS_ON;
             break;
         }
         saveSettings();

@@ -1,0 +1,426 @@
+{
+  "Name": "CC_ISIS",
+  "ConfigFiles": [
+    {
+      "Label": "ISIS",
+      "FileName": null,
+      "ReferenceOnly": false,
+      "EmbedContent": true,
+      "ConfigItems": [
+        {
+          "Source": {
+            "SimConnectValue": {
+              "UUID": "bbb26a5f-319a-49bf-b48a-1f4e0da43e32",
+              "Value": "(A:AIRSPEED INDICATED,Knots)",
+              "VarType": 2
+            },
+            "Type": "SimConnectSource"
+          },
+          "TestValue": {
+            "type": 1,
+            "Float64": 100.0,
+            "String": null
+          },
+          "Device": {
+            "Name": "CCs CC_ISIS",
+            "CustomType": null,
+            "CustomName": "CCs CC_ISIS",
+            "MessageType": 60,
+            "Value": "$",
+            "Type": "CustomDevice"
+          },
+          "DeviceType": "CustomDevice",
+          "DeviceName": "CCs CC_ISIS",
+          "GUID": "f5f2cf3b-d780-4b6e-90fe-e3d46ed584fd",
+          "Active": true,
+          "Name": "Airspeed",
+          "Type": "OutputConfigItem",
+          "Controller": {
+            "Name": "CC_ISIS ESP32",
+            "Serial": "SN-1051DB84E260"
+          },
+          "Modifiers": {
+            "Items": [
+              {
+                "Type": "Transformation",
+                "Expression": "Round($,1)",
+                "Active": true
+              }
+            ]
+          },
+          "RawValue": "162.3826904296875",
+          "Value": "162.4"
+        },
+        {
+          "Source": {
+            "SimConnectValue": {
+              "UUID": "cd012751-5bf3-4afb-9b0e-4063bfb0e5c5",
+              "Value": "(A:PLANE PITCH DEGREES,Degrees)",
+              "VarType": 2
+            },
+            "Type": "SimConnectSource"
+          },
+          "TestValue": {
+            "type": 1,
+            "Float64": 1.0,
+            "String": null
+          },
+          "Device": {
+            "Name": "CCs CC_ISIS",
+            "CustomType": null,
+            "CustomName": "CCs CC_ISIS",
+            "MessageType": 80,
+            "Value": "$",
+            "Type": "CustomDevice"
+          },
+          "DeviceType": "CustomDevice",
+          "DeviceName": "CCs CC_ISIS",
+          "GUID": "d5d8dde5-72fe-4a3f-bc7b-5691e3c70a88",
+          "Active": true,
+          "Name": "Pitch",
+          "Type": "OutputConfigItem",
+          "Controller": {
+            "Name": "CC_ISIS ESP32",
+            "Serial": "SN-1051DB84E260"
+          },
+          "Modifiers": {
+            "Items": [
+              {
+                "Type": "Transformation",
+                "Expression": "Round($,1)",
+                "Active": true
+              }
+            ]
+          },
+          "RawValue": "7.8627209663391113",
+          "Value": "7.9"
+        },
+        {
+          "Source": {
+            "SimConnectValue": {
+              "UUID": "6357059b-d04d-42b5-ab24-5212f273d8bf",
+              "Value": "(A:ATTITUDE INDICATOR BANK DEGREES,Degrees)",
+              "VarType": 2
+            },
+            "Type": "SimConnectSource"
+          },
+          "TestValue": {
+            "type": 1,
+            "Float64": 1.0,
+            "String": null
+          },
+          "Device": {
+            "Name": "CCs CC_ISIS",
+            "CustomType": null,
+            "CustomName": "CCs CC_ISIS",
+            "MessageType": 72,
+            "Value": "$",
+            "Type": "CustomDevice"
+          },
+          "DeviceType": "CustomDevice",
+          "DeviceName": "CCs CC_ISIS",
+          "GUID": "eecc8c0a-07d0-497c-a72e-c13343344df8",
+          "Active": true,
+          "Name": "Bank",
+          "Type": "OutputConfigItem",
+          "Controller": {
+            "Name": "CC_ISIS ESP32",
+            "Serial": "SN-1051DB84E260"
+          },
+          "Modifiers": {
+            "Items": [
+              {
+                "Type": "Transformation",
+                "Expression": "Round($,1)",
+                "Active": true
+              }
+            ]
+          },
+          "RawValue": "-0.37406900525093079",
+          "Value": "-0.4"
+        },
+        {
+          "Source": {
+            "SimConnectValue": {
+              "UUID": "0",
+              "Value": "(A:INDICATED ALTITUDE:3,Feet)",
+              "VarType": 2
+            },
+            "Type": "SimConnectSource"
+          },
+          "TestValue": {
+            "type": 1,
+            "Float64": 1.0,
+            "String": null
+          },
+          "Device": {
+            "Name": "CCs CC_ISIS",
+            "CustomType": null,
+            "CustomName": "CCs CC_ISIS",
+            "MessageType": 77,
+            "Value": "$",
+            "Type": "CustomDevice"
+          },
+          "DeviceType": "CustomDevice",
+          "DeviceName": "CCs CC_ISIS",
+          "GUID": "58348025-29cb-4a6b-8c33-356ac67606ef",
+          "Active": true,
+          "Name": "Indicated Altitude",
+          "Type": "OutputConfigItem",
+          "Controller": {
+            "Name": "CC_ISIS ESP32",
+            "Serial": "SN-1051DB84E260"
+          },
+          "Modifiers": {
+            "Items": [
+              {
+                "Type": "Transformation",
+                "Expression": "Round($,1)",
+                "Active": true
+              }
+            ]
+          },
+          "RawValue": "4767.7880859375",
+          "Value": "4767.8"
+        },
+        {
+          "Source": {
+            "SimConnectValue": {
+              "UUID": "61f7960a-2af8-486c-8bcc-a69900751769",
+              "Value": "(A:KOHLSMAN SETTING MB:3, Millibars)",
+              "VarType": 2
+            },
+            "Type": "SimConnectSource"
+          },
+          "TestValue": {
+            "type": 1,
+            "Float64": 1000.0,
+            "String": null
+          },
+          "Device": {
+            "Name": "CCs CC_ISIS",
+            "CustomType": null,
+            "CustomName": "CCs CC_ISIS",
+            "MessageType": 100,
+            "Value": "$",
+            "Type": "CustomDevice"
+          },
+          "DeviceType": "CustomDevice",
+          "DeviceName": "CCs CC_ISIS",
+          "GUID": "46cb44ec-a829-4be0-8e27-e894bfb70c90",
+          "Active": true,
+          "Name": "Kohlsman Pressure in mb",
+          "Type": "OutputConfigItem",
+          "Controller": {
+            "Name": "CC_ISIS ESP32",
+            "Serial": "SN-1051DB84E260"
+          },
+          "RawValue": "1013.25",
+          "Value": "1013.25"
+        },
+        {
+          "Source": {
+            "SimConnectValue": {
+              "UUID": "0",
+              "Value": "(L:A32NX_ISIS_BARO_MODE)",
+              "VarType": 2
+            },
+            "Type": "SimConnectSource"
+          },
+          "TestValue": {
+            "type": 1,
+            "Float64": 1.0,
+            "String": null
+          },
+          "Device": {
+            "Name": "CCs CC_ISIS",
+            "CustomType": null,
+            "CustomName": "CCs CC_ISIS",
+            "MessageType": 101,
+            "Value": "$",
+            "Type": "CustomDevice"
+          },
+          "DeviceType": "CustomDevice",
+          "DeviceName": "CCs CC_ISIS",
+          "GUID": "38b3f625-b584-436b-aa00-b951265949d1",
+          "Active": true,
+          "Name": "Baro Mode (1 is STD)",
+          "Type": "OutputConfigItem",
+          "Controller": {
+            "Name": "CC_ISIS ESP32",
+            "Serial": "SN-1051DB84E260"
+          },
+          "RawValue": "0",
+          "Value": "0"
+        },
+        {
+          "Source": {
+            "SimConnectValue": {
+              "UUID": "171a483a-d787-455b-a857-f5ad74703fb4",
+              "Value": "(A:AIRSPEED MACH,Mach)",
+              "VarType": 2
+            },
+            "Type": "SimConnectSource"
+          },
+          "TestValue": {
+            "type": 1,
+            "Float64": 1.0,
+            "String": null
+          },
+          "Device": {
+            "Name": "CCs CC_ISIS",
+            "CustomType": null,
+            "CustomName": "CCs CC_ISIS",
+            "MessageType": 102,
+            "Value": "$",
+            "Type": "CustomDevice"
+          },
+          "DeviceType": "CustomDevice",
+          "DeviceName": "CCs CC_ISIS",
+          "GUID": "f7aeb955-f35a-4ebd-8423-5bd5270d68fd",
+          "Active": true,
+          "Name": "Mach Airspeed",
+          "Type": "OutputConfigItem",
+          "Controller": {
+            "Name": "CC_ISIS ESP32",
+            "Serial": "SN-1051DB84E260"
+          },
+          "Modifiers": {
+            "Items": [
+              {
+                "Type": "Transformation",
+                "Expression": "Round($,2)",
+                "Active": true
+              }
+            ]
+          },
+          "RawValue": "0.2676350474357605",
+          "Value": "0.27"
+        },
+        {
+          "Source": {
+            "SimConnectValue": {
+              "UUID": "fb66e24d-5aea-4eb2-88c0-9d96cff6233f",
+              "Value": "(A:TURN COORDINATOR BALL,Position)",
+              "VarType": 2
+            },
+            "Type": "SimConnectSource"
+          },
+          "TestValue": {
+            "type": 1,
+            "Float64": 1.0,
+            "String": null
+          },
+          "Device": {
+            "Name": "CCs CC_ISIS",
+            "CustomType": null,
+            "CustomName": "CCs CC_ISIS",
+            "MessageType": 71,
+            "Value": "$",
+            "Type": "CustomDevice"
+          },
+          "DeviceType": "CustomDevice",
+          "DeviceName": "CCs CC_ISIS",
+          "GUID": "d7dcc6b2-9e46-45dd-90a2-30edd066c66f",
+          "Active": true,
+          "Name": "Ball Position",
+          "Type": "OutputConfigItem",
+          "Controller": {
+            "Name": "CC_ISIS ESP32",
+            "Serial": "SN-1051DB84E260"
+          },
+          "RawValue": "-0.0078125",
+          "Value": "-0.0078125"
+        },
+        {
+          "Source": {
+            "SimConnectValue": {
+              "UUID": "9449dbd5-7e28-4029-ac30-c7c074c82adf",
+              "Value": "(A:NAV GLIDE SLOPE ERROR:1,Degrees)",
+              "VarType": 2
+            },
+            "Type": "SimConnectSource"
+          },
+          "TestValue": {
+            "type": 1,
+            "Float64": 1.0,
+            "String": null
+          },
+          "DeviceType": "-",
+          "DeviceName": null,
+          "GUID": "9d9b4460-fa60-4477-9950-a4a680311b19",
+          "Active": true,
+          "Name": "Glideslope Error",
+          "Type": "OutputConfigItem",
+          "Controller": {
+            "Name": "CC_ISIS ESP32",
+            "Serial": "SN-1051DB84E260"
+          },
+          "RawValue": "0",
+          "Value": "0"
+        },
+        {
+          "Source": {
+            "SimConnectValue": {
+              "UUID": "0",
+              "Value": "(L:A32NX_ISIS_LS_ACTIVE)",
+              "VarType": 2
+            },
+            "Type": "SimConnectSource"
+          },
+          "TestValue": {
+            "type": 1,
+            "Float64": 1.0,
+            "String": null
+          },
+          "DeviceType": "-",
+          "DeviceName": null,
+          "GUID": "eedf3d59-6e34-459a-a565-068efee57e1a",
+          "Active": true,
+          "Name": "LS Is Active",
+          "Type": "OutputConfigItem",
+          "Controller": {
+            "Name": "CC_ISIS ESP32",
+            "Serial": "SN-1051DB84E260"
+          },
+          "RawValue": "0",
+          "Value": "0"
+        },
+        {
+          "Source": {
+            "SimConnectValue": {
+              "UUID": "-",
+              "Value": "(L:A32NX_RADIO_RECEIVER_LOC_DEVIATION)",
+              "VarType": 2
+            },
+            "Type": "SimConnectSource"
+          },
+          "TestValue": {
+            "type": 1,
+            "Float64": 1.0,
+            "String": null
+          },
+          "DeviceType": "-",
+          "DeviceName": null,
+          "GUID": "aa8b5825-9636-43d3-b253-b9c2b284463d",
+          "Active": true,
+          "Name": "LOC_Deviation",
+          "Type": "OutputConfigItem",
+          "Controller": {
+            "Name": "CC_ISIS ESP32",
+            "Serial": "SN-1051DB84E260"
+          },
+          "RawValue": "-0.90020751953125",
+          "Value": "-0.90020751953125"
+        }
+      ]
+    }
+  ],
+  "Sim": "msfs",
+  "Aircraft": [],
+  "Features": {
+    "FSUIPC": false,
+    "ProSim": false
+  },
+  "_version": "0.9"
+}

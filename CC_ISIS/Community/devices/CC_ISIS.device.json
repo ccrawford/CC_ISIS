@@ -4,7 +4,7 @@
     "Label": "CCs CC_ISIS",
     "Type": "CC_ISIS",
     "Author": "CCrawford",
-    "URL": "https://github.com/ccrawford",
+    "URL": "https://github.com/ccrawford/CC_ISIS",
     "Version": "1.0.0"
   },
   "Config": {
@@ -12,16 +12,6 @@
     "isI2C": false
   },
   "MessageTypes":  [
-      {
-        "id": 0,
-        "Label": "AP Heading Bug",
-        "description": "Autopilot heading bug angle in degrees"
-      },
-      {
-        "id": 1,
-        "Label": "Approach Type",
-        "description": "GPS approach type identifier"
-      },
       {
         "id": 2,
         "Label": "CDI Lateral Deviation",
@@ -33,11 +23,6 @@
         "description": "CDI needle has valid navigation data"
       },
       {
-        "id": 4,
-        "Label": "CDI To/From Flag",
-        "description": "Navigation to/from indicator (0=to, 1=from)"
-      },
-      {
         "id": 5,
         "Label": "Glide Slope Deviation",
         "description": "Glide slope vertical deviation"
@@ -46,26 +31,6 @@
         "id": 6,
         "Label": "Glide Slope Needle Valid",
         "description": "Glide slope needle has valid data"
-      },
-      {
-        "id": 7,
-        "Label": "Ground Speed",
-        "description": "GPS ground speed in knots"
-      },
-      {
-        "id": 8,
-        "Label": "Ground Track (Magnetic)",
-        "description": "GPS ground track in magnetic degrees"
-      },
-      {
-        "id": 9,
-        "Label": "Heading (Magnetic)",
-        "description": "Current magnetic heading in degrees"
-      },
-      {
-        "id": 10,
-        "Label": "Nav Source",
-        "description": "Navigation source (0=NAV, 1=GPS)"
       },
       {
         "id": 12,
