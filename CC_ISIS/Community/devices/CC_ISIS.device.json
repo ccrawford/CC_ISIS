@@ -1,0 +1,126 @@
+{
+  "$schema": "./mfdevice.schema.json",
+  "Info": {
+    "Label": "CCs CC_ISIS",
+    "Type": "CC_ISIS",
+    "Author": "CCrawford",
+    "URL": "https://github.com/ccrawford",
+    "Version": "1.0.0"
+  },
+  "Config": {
+    "Pins": ["DummyPin"],
+    "isI2C": false
+  },
+  "MessageTypes":  [
+      {
+        "id": 0,
+        "Label": "AP Heading Bug",
+        "description": "Autopilot heading bug angle in degrees"
+      },
+      {
+        "id": 1,
+        "Label": "Approach Type",
+        "description": "GPS approach type identifier"
+      },
+      {
+        "id": 2,
+        "Label": "CDI Lateral Deviation",
+        "description": "Course deviation indicator lateral needle position"
+      },
+      {
+        "id": 3,
+        "Label": "CDI Needle Valid",
+        "description": "CDI needle has valid navigation data"
+      },
+      {
+        "id": 4,
+        "Label": "CDI To/From Flag",
+        "description": "Navigation to/from indicator (0=to, 1=from)"
+      },
+      {
+        "id": 5,
+        "Label": "Glide Slope Deviation",
+        "description": "Glide slope vertical deviation"
+      },
+      {
+        "id": 6,
+        "Label": "Glide Slope Needle Valid",
+        "description": "Glide slope needle has valid data"
+      },
+      {
+        "id": 7,
+        "Label": "Ground Speed",
+        "description": "GPS ground speed in knots"
+      },
+      {
+        "id": 8,
+        "Label": "Ground Track (Magnetic)",
+        "description": "GPS ground track in magnetic degrees"
+      },
+      {
+        "id": 9,
+        "Label": "Heading (Magnetic)",
+        "description": "Current magnetic heading in degrees"
+      },
+      {
+        "id": 10,
+        "Label": "Nav Source",
+        "description": "Navigation source (0=NAV, 1=GPS)"
+      },
+      {
+        "id": 12,
+        "Label": "Screen Brightness",
+        "description": "Screen brightness from 0 (off) to 255 (full on)"
+      },
+      {
+        "id": 13,
+        "Label": "Power On/Off",
+        "description": "Power off/on (0=Off, 1=On)"
+      },
+      {
+        "id": 14,
+        "Label": "Power Control",
+        "description": "Manually control from MF: 0, Automatic device control: 1, Always on: 2"
+      },
+      {
+        "id": 60,
+        "Label": "Airspeed",
+        "description": "Indicated airspeed in knots"
+      },
+      {
+        "id": 71,
+        "Label": "Ball (Slip/Skid) Position",
+        "description": "Slip/skid ball position"
+      },
+      {
+        "id": 72,
+        "Label": "Bank Angle",
+        "description": "Aircraft bank angle in degrees"
+      },
+      {
+        "id": 77,
+        "Label": "Indicated Altitude",
+        "description": "Current indicated altitude in feet"
+      },
+      {
+        "id": 80,
+        "Label": "Pitch Angle",
+        "description": "Aircraft pitch angle in degrees"
+      },
+      {
+        "id": 100,
+        "Label": "Pressure in mb",
+        "description": "Kohlsman setting in mb"
+      },
+      {
+        "id": 101,
+        "Label": "ISIS Baro Mode",
+        "description": "Is Baro Mode STD (1: Yes, 0: No) Use (L:A32NX_ISIS_BARO_UNIT, Enum)"
+      },
+      {
+        "id": 102,
+        "Label": "Airspeed in Mach",
+        "description": "Mach airspeed (A:AIRSPEED MACH,Mach)"
+      }
+    ]
+}

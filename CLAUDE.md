@@ -4,36 +4,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is the CC_G5 project - a MobiFlight custom firmware device that implements a glass cockpit G5-style attitude indicator display for flight simulation. The device combines an ESP32-S3 microcontroller with an LCD display to show compass headings, CDI (Course Deviation Indicator), glide slope information, and navigation data.
+This is the CC_ISIS project - a MobiFlight custom firmware device that implements an A320-style ISIS (Integrated Standby Instrument System) display for flight simulation. The device uses an ESP32-S3 microcontroller with a 4-inch LCD to show attitude (pitch/bank), airspeed, altitude, pressure setting, glide slope, and CDI data.
 
 ## Architecture
 
 ### Hardware Platform
 - **Primary MCU**: ESP32-S3 DevKitC-1 with PSRAM
 - **Display**: 4-inch LCD with LovyanGFX graphics library
-- **Secondary MCU**: RP2040 for rotary encoder interface via I2C
-- **Communication**: I2C between ESP32 and RP2040, Serial/USB to PC
+- **Communication**: Serial/USB to PC (no rotary encoder — ISIS is display-only)
 
 ### Core Components
 
 #### Main Classes
-- **CC_G5**: Primary display controller (`CC_G5/CC_G5.h|.cpp`) - handles all display rendering, navigation data processing, and graphics updates
+- **CC_ISIS**: Primary display controller (`CC_G5/CC_ISIS.h|.cpp`) - handles all display rendering, flight data processing, and graphics updates
 - **MFCustomDevice**: MobiFlight integration layer (`CC_G5/MFCustomDevice.h|.cpp`) - manages device lifecycle and message handling
-- **CC_EncoderInterface**: I2C encoder interface (`CC_G5/CCi2c.h|.cpp`) - handles rotary encoder input from RP2040
+- **CC_G5_Base**: Shared base class (`CC_G5/G5Common.h|.cpp`) - provides `setCommon()` for message IDs 0-14, brightness/power management, and settings persistence
 
 #### Display System
 - Uses LovyanGFX library for high-performance graphics
-- Multiple sprite layers for complex overlays:
-  - Compass background with rotating tick marks
-  - CDI pointer and deviation bars
-  - Glide slope indicators
-  - Navigation mode indicators
-  - Text overlays for headings and distances
-
-#### Navigation Modes
-- **GPS Mode**: Shows GPS navigation data (magenta indicators)
-- **NAV Mode**: Shows VOR/ILS navigation data (green indicators)
-- **CDI Scale Types**: Multiple approach types (ENR, TERM, VNAV, LP, LOC, etc.)
+- Multiple sprite layers for the instrument:
+  - Attitude background (sky/ground horizon with pitch ladder)
+  - Roll arc and roll/slip pointer overlay
+  - Airspeed tape
+  - Altitude tape
+  - Pressure/kohlsman setting
+  - Mach number display
+  - ILS/LS deviation indicators (in development)
 
 ## Build System
 
@@ -46,8 +42,8 @@ This is the CC_G5 project - a MobiFlight custom firmware device that implements 
 # Build all environments
 pio run
 
-# Build specific CC_G5 environment
-pio run -e ccrawford_cc_g5_esp32s3
+# Build CC_ISIS environment
+pio run -e ccrawford_cc_isis_esp32s3
 
 # Clean build
 pio run -t clean
@@ -69,41 +65,59 @@ pio run -t upload
 ## Development Workflow
 
 ### Message Handling
-The device receives navigation data via MobiFlight's message system. Key message IDs in `CC_G5::set()`:
-- Message 0: Heading angle
-- Message 1: Heading bug angle  
-- Message 2: CDI direction
-- Message 3: CDI to/from indicator
-- Message 4: CDI offset
-- Message 5: Glide slope indicator
-- Message 6: Ground speed
-- Message 9: Navigation source (GPS=1, NAV=0)
+The device receives flight data via MobiFlight's message system.
 
-### Display Updates
-- `updateCommon()`: Main display refresh
-- `updateGps()`: GPS mode specific displays
-- `updateNav()`: NAV mode specific displays
-- Individual draw functions for each display element
+**Common message IDs** (handled by `CC_G5_Base::setCommon()`):
+- 0: AP Heading Bug
+- 1: Approach Type (GPS approach type enum)
+- 2: CDI Lateral Deviation
+- 3: CDI Needle Valid
+- 4: CDI To/From Flag
+- 5: Glide Slope Deviation
+- 6: Glide Slope Needle Valid
+- 7: Ground Speed
+- 8: Ground Track (Magnetic)
+- 9: Heading (Magnetic)
+- 10: Nav Source (1=GPS, 0=NAV)
+- 12: Screen Brightness
+- 13: Power On/Off
+- 14: Power Control mode
 
-### I2C Encoder Interface
-- ESP32 acts as I2C master, RP2040 as slave at address 0x08
-- Interrupt-driven data reading on GPIO17
-- 3-byte protocol: encoder delta, encoder button, extra button
+**ISIS-specific message IDs** (handled by `CC_ISIS::set()`):
+- 60: Airspeed (knots)
+- 71: Ball/Slip-Skid position
+- 72: Bank Angle (degrees)
+- 77: Indicated Altitude (feet)
+- 80: Pitch Angle (degrees)
+- 100: Pressure in mb (Kohlsman)
+- 101: ISIS Baro Mode (1=STD, 0=normal)
+- 102: Mach number
+
+### Display Draw Functions
+- `drawAttitude()`: Horizon, pitch ladder, bank indicator
+- `drawSpeedTape()`: Airspeed tape with pointer
+- `drawAltTape()`: Altitude tape with pointer
+- `drawPressure()`: Kohlsman/mb pressure setting
+- `drawMach()`: Mach number (shows when >= 0.45)
+- `drawLS()`: ILS/localizer deviation (in development)
 
 ## Key File Locations
 
 ### Source Code
-- `CC_G5/CC_G5.h|.cpp`: Main device implementation
+- `CC_G5/CC_ISIS.h|.cpp`: Main ISIS device implementation
+- `CC_G5/G5Common.h|.cpp`: Shared base class, state structs, power management
 - `CC_G5/MFCustomDevice.h|.cpp`: MobiFlight integration
-- `CC_G5/CCi2c.h|.cpp`: I2C encoder interface
 
 ### Configuration
-- `CC_G5/4inchLCDConfig.h`: Display configuration
-- `CC_G5/MFCustomDevicesConfig.h`: Device type definitions
+- `CC_G5/4inchLCDConfig.h`: Display configuration (Waveshare)
+- `CC_G5/4inchLCDConfig_Guition.h`: Display configuration (Guition)
+- `CC_G5/MFCustomDevicesConfig.h`: Flash config string
+- `CC_G5/MFCustomDeviceTypes.h`: Message ID routing constants
 
 ### Assets
-- `CC_G5/Sprites/`: 16-bit color sprite images
-- `CC_G5/Images/`: Font and 1-bit images
+- `CC_G5/Sprites/`: Compiled sprite image headers (attitude bg, roll arc, etc.)
+- `CC_G5/Images/isisFont.h`: A320-style ISIS font
+- `CC_G5/Images/PrimaSansMid32.h`: Font used for battery/power display
 - `CC_G5/Community/`: MobiFlight connector configuration files
 
 ### Scripts
@@ -111,24 +125,16 @@ The device receives navigation data via MobiFlight's message system. Key message
 
 ## Common Development Tasks
 
-### Adding New Navigation Data
-1. Add message ID case in `CC_G5::set()`
-2. Add corresponding member variable
-3. Update appropriate draw function
-4. Test in both GPS and NAV modes
+### Adding New Flight Data
+1. Add message ID case in `CC_ISIS::set()` (or `CC_G5_Base::setCommon()` if truly common)
+2. Add corresponding field to `G5State` in `G5Common.h`
+3. Update appropriate draw function in `CC_ISIS.cpp`
+4. Add message ID to `CC_G5/Community/devices/CC_ISIS.device.json`
 
 ### Display Modifications
-1. Modify draw functions in `CC_G5.cpp`
-2. Update sprite definitions if needed
-3. Consider both color modes (GPS=magenta, NAV=green)
-4. Test rotation and positioning calculations
+1. Modify draw functions in `CC_ISIS.cpp`
+2. Update sprite definitions in `CC_G5/Sprites/` if new images are needed
+3. Run image conversion scripts in `CC_G5/Scripts/` to regenerate `.h` files
 
-### I2C Communication Changes
-1. Update protocol in both ESP32 (`CC_G5.cpp`) and RP2040 code
-2. Modify interrupt handling if needed
-3. Update `CCi2c.h|.cpp` for interface changes
-
-## Branch Information
-- Current branch: `i2c-support` - implementing I2C encoder interface
-- Main development typically done on feature branches
-- Many modified files indicate active development phase
+### Settings Changes
+When modifying `CC_G5_Settings` struct layout, **always increment `SETTINGS_VERSION`** in `G5Common.h` so stale EEPROM data is detected and reset to defaults.
