@@ -33,8 +33,12 @@ MANIFEST_PATH = os.path.join(WEB_DIR, "manifest.json")
 # ESP32-S3 chip identifier used by esptool
 CHIP = "esp32s3"
 
-# Must match board_build.flash_mode in CC_ISIS_platformio.ini
-FLASH_MODE = "qio"
+# DIO, not QIO — this is the flash mode byte esptool patches into the bootloader
+# image header, which tells the ESP32-S3 ROM how to read the secondary bootloader
+# off flash. The ROM requires DIO for this initial load; the secondary bootloader
+# then switches to QIO itself. board_build.flash_mode = qio controls the compiled
+# code path in the bootloader, which is a separate thing.
+FLASH_MODE = "dio"
 
 # Must match board_build.f_flash (80000000L) in CC_ISIS_platformio.ini
 FLASH_FREQ = "80m"
