@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CC_ISIS Firmware Installer</title>
+
+  <!-- ESP Web Tools — provides the <esp-web-install-button> custom element -->
+  <script
+    type="module"
+    src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"
+  ></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #111827;
+      color: #d1d5db;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 16px 64px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #38bdf8;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      margin-top: 8px;
+      color: #9ca3af;
+      font-size: 0.95rem;
+    }
+
+    .card {
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 10px;
+      padding: 28px 32px;
+      width: 100%;
+      max-width: 560px;
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #f3f4f6;
+      margin-bottom: 16px;
+    }
+
+    ol.steps {
+      list-style: none;
+      counter-reset: step-counter;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    ol.steps li {
+      counter-increment: step-counter;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #d1d5db;
+    }
+
+    ol.steps li::before {
+      content: counter(step-counter);
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #38bdf8;
+      color: #0f172a;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    esp-web-install-button {
+      display: block;
+    }
+
+    /* Style the default install button provided by ESP Web Tools */
+    esp-web-install-button::part(button) {
+      background: #0ea5e9;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    esp-web-install-button::part(button):hover {
+      background: #38bdf8;
+    }
+
+    .browser-note {
+      margin-top: 14px;
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    .browser-note a {
+      color: #38bdf8;
+    }
+
+    .about p {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #9ca3af;
+    }
+
+    .about p + p {
+      margin-top: 10px;
+    }
+
+    .about a {
+      color: #38bdf8;
+    }
+
+    code {
+      background: #111827;
+      border: 1px solid #374151;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      font-family: "SFMono-Regular", Consolas, monospace;
+    }
+
+    footer {
+      margin-top: 32px;
+      font-size: 0.78rem;
+      color: #4b5563;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>CC_ISIS</h1>
+    <p>A320-style ISIS display for MobiFlight &mdash; ESP32-S3</p>
+  </header>
+
+  <!-- Install card -->
+  <div class="card">
+    <h2>Install Firmware</h2>
+
+    <ol class="steps">
+      <li>Connect your ESP32-S3 to your PC via USB.</li>
+      <li>Click <strong>Install</strong> below and select the correct COM port when prompted.</li>
+      <li>Wait for flashing to complete, then unplug and replug the device.</li>
+    </ol>
+
+    <esp-web-install-button manifest="manifest.json">
+      <!-- Shown when the browser does not support Web Serial -->
+      <span slot="unsupported">
+        Web Serial is not supported here. Use
+        <a href="https://www.google.com/chrome/" target="_blank">Chrome</a> or
+        <a href="https://www.microsoft.com/edge" target="_blank">Edge</a>
+        on desktop.
+      </span>
+
+      <!-- Shown when the page is not on HTTPS/localhost -->
+      <span slot="not-allowed">
+        Web Serial requires a secure context (<code>https://</code> or
+        <code>localhost</code>). Check how this page is being served.
+      </span>
+    </esp-web-install-button>
+
+    <p class="browser-note">
+      Requires Chrome or Edge with Web Serial support &mdash;
+      <a href="https://caniuse.com/web-serial" target="_blank">browser compatibility</a>.
+    </p>
+  </div>
+
+  <!-- About card -->
+  <div class="card about">
+    <h2>About CC_ISIS</h2>
+    <p>
+      <strong>CC_ISIS</strong> is a
+      <a href="https://www.mobiflight.com/" target="_blank">MobiFlight</a>
+      custom firmware device that implements an A320-style ISIS
+      (Integrated Standby Instrument System) on a 4-inch LCD driven by an
+      ESP32-S3 microcontroller.
+    </p>
+    <p>
+      It displays pitch/bank attitude, airspeed, altitude, barometric pressure
+      setting, and ILS deviation — driven by data from your flight simulator
+      via the MobiFlight Connector.
+    </p>
+    <p>
+      Source code and wiring instructions:
+      <a href="https://github.com/ccrawford/CC_ISIS" target="_blank">
+        github.com/ccrawford/CC_ISIS
+      </a>
+    </p>
+  </div>
+
+  <footer>CC_ISIS &bull; MobiFlight Custom Device &bull; ESP32-S3</footer>
+
+</body>
+</html>
