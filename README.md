@@ -8,6 +8,7 @@ ESP32 and gets the relevant data from MobiFlight.
 
 This device is written for the Guition 4" 480x480 touch display with embedded 
 ESP32-S3. Available from the usual places: AliExpress, Amazon, etc. for around $20.
+Here's one: https://www.aliexpress.us/item/3256808028364930.html
 Other displays (e.g. the WaveShare 4" with its ESP32-S3 LCD Driver) will also work
 but you'll need to recompile to use them.
 
@@ -102,5 +103,6 @@ in MSFS and maps all simulator variables to the CC_ISIS device outputs.
 - [Web Installer](https://ccrawford.github.io/CC_ISIS/web-installer/)
 - [MobiFlight](https://www.mobiflight.com)
 - [FlyByWire A32NX](https://flybywiresim.com)
+
 
 
