@@ -16,6 +16,7 @@
     "MessageSize": 90
   },
   "HardwareIds": [
+    "^VID_1A86&PID_7523&REV_0264",
     "^VID_303A&PID_1001",
     "^VID_303A\\+PID_1001\\+.+",
     "^VID_1A86&PID_7523",
