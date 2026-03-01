@@ -2,7 +2,18 @@
 
 An A320-style ISIS (Integrated Standby Instrument System) implemented as a
 [MobiFlight](https://www.mobiflight.com) Community Device on an ESP32-S3 with
-a 4-inch LCD.
+a 4-inch LCD. Unlike an HDMI based ISIS, this one does NOT require popping out 
+the ISIS from the plane. Instead it recreates all the display logic on the 
+ESP32 and gets the relevant data from MobiFlight.
+
+This device is written for the Guition 4" 480x480 touch display with embedded 
+ESP32-S3. Available from the usual places: AliExpress, Amazon, etc. for around $20.
+Here's one: https://www.aliexpress.us/item/3256808028364930.html
+Other displays (e.g. the WaveShare 4" with its ESP32-S3 LCD Driver) will also work
+but you'll need to recompile to use them.
+
+Tested with the FBW A320, but no reason it will not work with others.
+Some adjustments may be needed to the MobiFlight configuration for different planes.
 
 <img src="CC_ISIS/Photos/IMG_4564.JPEG" alt="The Display next to the FBW A320 ISIS in MSFS 2024" width="400">
 
@@ -92,3 +103,6 @@ in MSFS and maps all simulator variables to the CC_ISIS device outputs.
 - [Web Installer](https://ccrawford.github.io/CC_ISIS/web-installer/)
 - [MobiFlight](https://www.mobiflight.com)
 - [FlyByWire A32NX](https://flybywiresim.com)
+
+
+
