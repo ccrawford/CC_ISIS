@@ -95,6 +95,18 @@ in MSFS and maps all simulator variables to the CC_ISIS device outputs.
 2. Connect the CC_ISIS device via USB — it should appear automatically.
 3. Click **Run** in MobiFlight Connector.
 
+ NOTE: If after installing the firmware your device is not recognized by MF (looks like this:)
+   <img width="446"  alt="image" src="https://github.com/user-attachments/assets/1476bdff-d4fe-4253-b5fb-8de6b8ee6c8b" />
+
+  Do this:
+  Find this file: %USERPROFILE%\AppData\Local\MobiFlight\MobiFlight Connector\Boards\arduino_mega.board.json
+  On line 14, change this line:
+    `"DtrEnable": true,`
+to 
+    `"DtrEnable": false,`
+
+That will fix it. HOWEVER, you have to update that line whenever MF updates itself. I have a issue raised with the MF maintainers. 
+
 ---
 
 ## Links
