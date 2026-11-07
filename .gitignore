@@ -7,3 +7,6 @@
 src
 _build
 _dist
+CLAUDE.MD
+.claude
+COMMIT_HISTORY_DETAILED.txt
