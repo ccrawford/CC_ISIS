@@ -30,6 +30,7 @@ private:
     void drawLS();
 
     void draw();
+    void pushFrame();
 
 
 

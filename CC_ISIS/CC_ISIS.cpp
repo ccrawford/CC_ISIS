@@ -21,20 +21,37 @@
 #define ATT_WIDTH     320
 #define ATT_HEIGHT    350
 
-LGFX_Sprite attSprite(&lcd);   // Main attitude display
+// Black border around the whole instrument, in screen pixels. The scene is still laid out
+// for the full panel (all coordinates above), drawn into frameSprite, and then pushed to the
+// LCD scaled down by (panel - 2*border) / panel and centred. Set to 0 for the unscaled layout.
+#define SCREEN_BORDER_PX 8
 
-LGFX_Sprite slipSprite(&attSprite);  // Roll pointer and slip skid indicator
+// Horizontal shift of the whole picture, in screen pixels (positive = right). Applied after
+// any border scaling. Whatever shifts past the edge is cut off, and the uncovered strip stays
+// black. Used to move the speed tape's leftmost digit out from under the bezel.
+#define SCREEN_OFFSET_X 8
 
-LGFX_Sprite ladderValSprite(&attSprite); // Used to hold the scale numbers on the pitch ladder
-LGFX_Sprite blackoutArcSprite(&attSprite);  // Arc to punch-out the top and bottom of the attSprite
-LGFX_Sprite speedSprite(&lcd); // Holds the speed tape
+// 1 = smooth the scaled copy (no vanishing 1px lines, slightly softer, slower).
+// 0 = nearest-neighbour (sharp, fast, but drops one row/column in every few).
+#define SCREEN_ZOOM_AA 0
 
-LGFX_Sprite altSprite(&lcd);         // Holds the alt tape
-LGFX_Sprite alt100Sprite(&altSprite);   
+// 1 = print the time each frame takes, in the top-left corner of the border.
+#define SHOW_FRAME_TIME 0
 
-LGFX_Sprite kohlsSprite(&lcd);
+LGFX_Sprite frameSprite(&lcd); // Whole-screen composite; scaled into the LCD once per frame
 
+LGFX_Sprite attSprite(&frameSprite); // Main attitude display
 
+LGFX_Sprite slipSprite(&attSprite); // Roll pointer and slip skid indicator
+
+LGFX_Sprite ladderValSprite(&attSprite);   // Used to hold the scale numbers on the pitch ladder
+LGFX_Sprite blackoutArcSprite(&attSprite); // Arc to punch-out the top and bottom of the attSprite
+LGFX_Sprite speedSprite(&frameSprite);     // Holds the speed tape
+
+LGFX_Sprite altSprite(&frameSprite); // Holds the alt tape
+LGFX_Sprite alt100Sprite(&altSprite);
+
+LGFX_Sprite kohlsSprite(&frameSprite);
 
 CC_ISIS::CC_ISIS()
 {
@@ -46,6 +63,13 @@ void CC_ISIS::setupSprites()
     // bgSprite.createSprite(ISISBG_IMG_WIDTH, ISISBG_IMG_HEIGHT);
     // bgSprite.pushImage(0, 0, ISISBG_IMG_WIDTH, ISISBG_IMG_HEIGHT, ISISBG_IMG_DATA);
 
+    // Full-panel composite (480x480 at 8 bits = 230 KB), so it lives in PSRAM.
+    // Areas no sprite draws into (e.g. above the attitude) stay black from creation.
+    frameSprite.setColorDepth(8);
+    frameSprite.setPsram(true);
+    frameSprite.createSprite(lcd.width(), lcd.height());
+    frameSprite.setPivot(frameSprite.width() / 2.0f, frameSprite.height() / 2.0f);
+
     attSprite.setColorDepth(8);
     attSprite.createSprite(320, 350);
     attSprite.loadFont(A320ISIS24);
@@ -54,10 +78,10 @@ void CC_ISIS::setupSprites()
     attSprite.setTextDatum(CC_DATUM);
 
     slipSprite.setColorDepth(8);
-    slipSprite.createSprite(ROLLSLIP_IMG_WIDTH*2+ROLLPOINTER_IMG_WIDTH, ROLLSLIP_IMG_HEIGHT + ROLLPOINTER_IMG_HEIGHT);
+    slipSprite.createSprite(ROLLSLIP_IMG_WIDTH * 2 + ROLLPOINTER_IMG_WIDTH, ROLLSLIP_IMG_HEIGHT + ROLLPOINTER_IMG_HEIGHT);
     slipSprite.fillSprite(TFT_MAGENTA);
-    slipSprite.pushImage(slipSprite.width()/2 - ROLLPOINTER_IMG_WIDTH/2, 0, ROLLPOINTER_IMG_WIDTH, ROLLPOINTER_IMG_HEIGHT, ROLLPOINTER_IMG_DATA, 8184);
-    slipSprite.setPivot(ROLLSLIP_IMG_WIDTH, 159);  // 159 from ref image. dist from tip to center.
+    slipSprite.pushImage(slipSprite.width() / 2 - ROLLPOINTER_IMG_WIDTH / 2, 0, ROLLPOINTER_IMG_WIDTH, ROLLPOINTER_IMG_HEIGHT, ROLLPOINTER_IMG_DATA, 8184);
+    slipSprite.setPivot(ROLLSLIP_IMG_WIDTH, 159); // 159 from ref image. dist from tip to center.
 
     ladderValSprite.setColorDepth(8);
     ladderValSprite.createSprite(45, 28); // Hold two digits. Digits are 24 high
@@ -85,7 +109,6 @@ void CC_ISIS::setupSprites()
     altSprite.setColor(TFT_LIGHTGRAY);
     altSprite.setTextColor(TFT_LIGHTGRAY, TFT_BLACK);
     altSprite.setTextDatum(CL_DATUM);
-
 
     alt100Sprite.setColorDepth(8);
     alt100Sprite.createSprite(ALTBG_IMG_WIDTH, ALTBG_IMG_HEIGHT);
@@ -162,7 +185,7 @@ void CC_ISIS::set(int16_t messageID, char *setPoint)
     case 101: // are we in std pressure mode
         isisState.isStdPressure = atoi(setPoint);
         break;
-    case 102:  // Mach number
+    case 102: // Mach number
         isisState.machSpeed = atof(setPoint);
         break;
     }
@@ -172,7 +195,7 @@ void CC_ISIS::drawAttitude()
 {
 
     const int16_t CENTER_X = attSprite.width() / 2;
-    const int16_t CENTER_Y = ATT_HORIZON-2;
+    const int16_t CENTER_Y = ATT_HORIZON - 2;
 
     const uint16_t HORIZON_COLOR = 0xFFFF;
     const uint16_t SKY_COLOR     = TFT_BLUE;
@@ -315,14 +338,12 @@ void CC_ISIS::drawAttitude()
         }
     }
 
-    // -- Draw slip/skid and poitner. 
+    // -- Draw slip/skid and poitner.
     slipSprite.fillSprite(TFT_MAGENTA);
-    slipSprite.pushImage(slipSprite.width()/2 - ROLLPOINTER_IMG_WIDTH/2, 0, ROLLPOINTER_IMG_WIDTH, ROLLPOINTER_IMG_HEIGHT, ROLLPOINTER_IMG_DATA, 8184);
-    slipSprite.pushImage(min((int)(slipSprite.width() - ROLLSLIP_IMG_WIDTH),  max(0, (int)(slipSprite.width()/2 - ROLLSLIP_IMG_WIDTH/2 + (0.7 * isisState.ballPos)*ROLLSLIP_IMG_WIDTH))), ROLLPOINTER_IMG_HEIGHT, ROLLSLIP_IMG_WIDTH, ROLLSLIP_IMG_HEIGHT, ROLLSLIP_IMG_DATA, 8184);
-    attSprite.setPivot(attSprite.width()/2 - 12, ATT_HORIZON);
+    slipSprite.pushImage(slipSprite.width() / 2 - ROLLPOINTER_IMG_WIDTH / 2, 0, ROLLPOINTER_IMG_WIDTH, ROLLPOINTER_IMG_HEIGHT, ROLLPOINTER_IMG_DATA, 8184);
+    slipSprite.pushImage(min((int)(slipSprite.width() - ROLLSLIP_IMG_WIDTH), max(0, (int)(slipSprite.width() / 2 - ROLLSLIP_IMG_WIDTH / 2 + (0.7 * isisState.ballPos) * ROLLSLIP_IMG_WIDTH))), ROLLPOINTER_IMG_HEIGHT, ROLLSLIP_IMG_WIDTH, ROLLSLIP_IMG_HEIGHT, ROLLSLIP_IMG_DATA, 8184);
+    attSprite.setPivot(attSprite.width() / 2 - 12, ATT_HORIZON);
     slipSprite.pushRotated(isisState.bankAngle, TFT_MAGENTA);
-
-
 
     // --- 3. Draw Horizon Line ---
     // The horizon is just a pitch line at 0 degrees.
@@ -399,7 +420,7 @@ void CC_ISIS::drawAltTape()
 
     bool  isNeg  = (isisState.altitude < 0.0f);
     float curAlt = fabsf(isisState.altitude); // always non-negative; display NEG indicator for sub-sea-level
-    int   fl     = (int)(curAlt / 100);     // hundreds and above (e.g. 1234ft → fl=12)
+    int   fl     = (int)(curAlt / 100);       // hundreds and above (e.g. 1234ft → fl=12)
 
     char buf[8];
 
@@ -559,10 +580,11 @@ void CC_ISIS::drawPressure()
     kohlsSprite.pushSprite(140, 420);
 }
 
-void CC_ISIS::drawMach() {
-    if(isisState.machSpeed < 0.45) {
+void CC_ISIS::drawMach()
+{
+    if (isisState.machSpeed < 0.45) {
         kohlsSprite.fillSprite(TFT_BLACK);
-        kohlsSprite.pushSprite(20, 420); 
+        kohlsSprite.pushSprite(20, 420);
         return;
     }
 
@@ -578,10 +600,15 @@ void CC_ISIS::drawMach() {
         s++;
     }
     kohlsSprite.drawString(s, 1, 1);
-    kohlsSprite.pushSprite(20, 420); 
+    kohlsSprite.pushSprite(20, 420);
 }
 void CC_ISIS::draw()
 {
+#if SHOW_FRAME_TIME
+    uint32_t frameStart = micros();
+#endif
+
+    // Everything below draws into frameSprite at full-panel coordinates.
     drawAttitude();
     drawBackground();
     drawSpeedTape();
@@ -589,6 +616,39 @@ void CC_ISIS::draw()
     attSprite.pushSprite(ATT_LEFT_EDGE, ATT_TOP_EDGE);
     drawPressure();
     drawMach();
+
+    pushFrame();
+
+#if SHOW_FRAME_TIME
+    // Drawn straight to the LCD, inside the border, so it isn't scaled.
+    char buf[12];
+    snprintf(buf, sizeof(buf), "%4lu ms", (unsigned long)((micros() - frameStart) / 1000));
+    lcd.setFont(&fonts::Font0);
+    lcd.setTextSize(1);
+    lcd.setTextDatum(TL_DATUM);
+    lcd.setTextColor(TFT_DARKGREY, TFT_BLACK);
+    lcd.drawString(buf, 2, 2);
+#endif
+}
+
+void CC_ISIS::pushFrame()
+{
+#if SCREEN_BORDER_PX == 0
+    frameSprite.pushSprite(SCREEN_OFFSET_X, 0);
+#else
+    // Scale so the frame fills the panel minus SCREEN_BORDER_PX on every side, centred
+    // (then shifted by SCREEN_OFFSET_X). The border is never written, so it stays black
+    // from begin()'s fillScreen.
+    const float zoomX = (lcd.width() - 2.0f * SCREEN_BORDER_PX) / frameSprite.width();
+    const float zoomY = (lcd.height() - 2.0f * SCREEN_BORDER_PX) / frameSprite.height();
+    const float cx    = lcd.width() / 2.0f + SCREEN_OFFSET_X;
+    const float cy    = lcd.height() / 2.0f;
+#if SCREEN_ZOOM_AA
+    frameSprite.pushRotateZoomWithAA(&lcd, cx, cy, 0.0f, zoomX, zoomY);
+#else
+    frameSprite.pushRotateZoom(&lcd, cx, cy, 0.0f, zoomX, zoomY);
+#endif
+#endif
 }
 
 void CC_ISIS::updateInputValues()
