@@ -54,7 +54,8 @@ APP_OFFSET         = "0x10000"  # matches huge_app.csv first partition start
 # boot_app0.bin marks app0 as the active OTA slot.  Without it the ESP32-S3
 # bootloader sees all-0xFF otadata and refuses to boot.  PlatformIO always
 # includes this file via FLASH_EXTRA_IMAGES; we must do the same.
-_PIO_PACKAGES = os.path.join(os.path.expanduser("~"), ".platformio", "packages")
+# Must match packages_dir in platformio.ini (this project keeps its own packages).
+_PIO_PACKAGES = os.path.join(os.path.expanduser("~"), ".platformio", "packages_cc_isis")
 BOOT_APP0_BIN = os.path.join(
     _PIO_PACKAGES,
     "framework-arduinoespressif32",
@@ -112,9 +113,11 @@ def merge_firmware(app_bin: str, output_path: str) -> None:
     cmd = [
         sys.executable, "-m", "esptool",
         "--chip", CHIP,
-        "merge-bin",           # esptool v5+: hyphens preferred over underscores
-        "--flash-mode", FLASH_MODE,
-        "--flash-freq", FLASH_FREQ,
+        # Underscore spellings: esptool 4.x (this project's pioarduino 51.03.05) only
+        # knows these, and esptool 5.x still accepts them (with a deprecation note).
+        "merge_bin",
+        "--flash_mode", FLASH_MODE,
+        "--flash_freq", FLASH_FREQ,
         "-o", output_path,
         BOOTLOADER_OFFSET, bootloader,
         PARTITION_OFFSET,  partitions,
